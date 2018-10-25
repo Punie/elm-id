@@ -23,10 +23,10 @@ you could define them as such:
             }
 
     type alias UserID =
-        Id Int User
+        Id String User
 
     type alias ArticleID =
-        Id String Article
+        Id Int Article
 
 
 # The Id type
@@ -58,13 +58,13 @@ type Id a resource
 
 {-| Make an `Id` from its representation.
 
-    userID : Id Int User
+    userID : Id String User
     userID =
-        Id.from 5
-
-    articleID : Id String Article
-    articleID =
         Id.from "e4edf8a"
+
+    articleID : Id Int Article
+    articleID =
+        Id.from 5
 
 -}
 from : a -> Id a resource
@@ -74,9 +74,9 @@ from value =
 
 {-| Extract the raw representation from an `Id`.
 
-    Id.to userID == 5
+    Id.to userID == "e4edf8a"
 
-    Id.to articleID == "e4edf8a"
+    Id.to articleID == 5
 
 -}
 to : Id a resource -> a
@@ -86,13 +86,13 @@ to (Id value) =
 
 {-| Encode an `Id`.
 
-    encodeUserID : Id Int User -> Value
+    encodeUserID : Id String User -> Value
     encodeUserID =
-        Id.encode Json.Encode.int
-
-    encodeArticleID : Id String Article -> Value
-    encodeArticleID =
         Id.encode Json.Encode.string
+
+    encodeArticleID : Id Int Article -> Value
+    encodeArticleID =
+        Id.encode Json.Encode.int
 
 -}
 encode : (a -> Value) -> Id a resource -> Value
@@ -102,13 +102,13 @@ encode encode_ (Id value) =
 
 {-| Decode an `Id`.
 
-    userIDDecoder : Decoder (Id Int User)
+    userIDDecoder : Decoder (Id String User)
     userIDDecoder =
-        Id.decoder Json.Decode.int
-
-    articleIDDecoder : Decoder (Id String Article)
-    articleIDDecoder =
         Id.decoder Json.Decode.string
+
+    articleIDDecoder : Decoder (Id Int Article)
+    articleIDDecoder =
+        Id.decoder Json.Decode.int
 
 -}
 decoder : Decoder a -> Decoder (Id a resource)
