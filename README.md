@@ -74,13 +74,16 @@ commentId = Id.from 5
 -}
 
 
-getComment articleId comments -- Would **NOT** compile
-getComment commentId comments -- Would compile without issue even though the underlying ID value is the same
+-- This would **NOT** compile even though the underlying ID value is the same (5)
+getComment articleId comments
+
+-- This would compile without any issues
+getComment commentId comments
 ```
 
 ## Disclaimer
 
-Please note that our resource types `User`, `Article` and `Comment` are **NOT** `type aliase`s but custom data types in their own rights. This is a requirement! Should you try to define your `User` type as such :
+Please note that our resource types `User`, `Article` and `Comment` are **NOT** `type alias`es but custom data types in their own rights. This is a requirement! Should you try to define your `User` type as such :
 
 ```elm
 type alias User =
@@ -94,7 +97,34 @@ the compiler will complain that you have a circular definition between your `Use
 This is very much intentional! This API was designed to enforce best practices when it comes to resources which most likely originate from outside your Elm application.
 
 I firmly believe that record types should be `type alias`ed **only** when your Elm application has full, exclusive control on those types (grouping configuration values for a `view` function for example).
-On the other hand, data that your application do not have exclusive ownership should be guarded behind an opaque data constructor and moved to its own module. Said module should then expose a set of helper functions for manipulating this data (accessing fields, mutating fields, rendering, validation, and so on).
+On the other hand, data that your application do not have exclusive ownership should be guarded behind an opaque data constructor and moved to its own module. Said module should then expose a set of helper functions for manipulating this data (accessing or mutating fields, rendering, validation, and so on).
+
+## Alternative regarding type aliases
+
+If your application **must** deal with `Id`s on `type alias`ed records, there is still a pattern you can adopt:
+
+```elm
+import Id exposing (Id)
+
+
+type alias UserID =
+    Id Int User
+
+
+type alias User =
+    { name : String
+    , age : Int
+    }
+
+
+type alias IdentifiedUser =
+    (UserID, User)
+```
+
+That gets rid of any circular dependency because your `User` record is completely decoupled from its `Id`.
+A nice additional benefit is that you can now construct `User` objects without caring about their `Id` (say, creating a `User`) from a field, prior to send it to your backend for persistence. However, you still have a way of ensuring a `User` is properly indexed with the `IdentifiedUser` construct.
+
+_**Note:**_ I might be enclined to extract this pattern as a secondary module but I would very much like to get feedback beforehand so don't hesitate to file an issue on Github to describe your use case.
 
 ## Contributing
 
